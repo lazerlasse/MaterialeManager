@@ -1,0 +1,8 @@
+﻿@using MaterialeManager
+@using MaterialeManager.Models
+@using Microsoft.AspNetCore.Authorization
+@using MaterialeManager.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject IAuthorizationService AuthorizationService
+@inject SignInManager<IdentityUser> SignInManager
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

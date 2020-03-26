@@ -1,0 +1,84 @@
+﻿@model IEnumerable<MaterialeManager.Models.Case>
+
+@{
+    ViewData["Title"] = "Sager til klip";
+}
+
+<h1>Sager til klip</h1>
+
+@if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.Create)).Succeeded)
+{
+    <p><a asp-action="Create">Opret</a></p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CaseStateID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CaseOperatorID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhotographerID)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@item.CaseState.State">
+                <td>
+                    @Html.DisplayFor(modelItem => item.CaseState.State)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Photographer.UserName)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.CaseID">Detaljer</a>
+
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Update)).Succeeded)
+                    {
+                        <text> | </text>
+                        <a asp-action="Edit" asp-route-id="@item.CaseID">Rediger</a>
+                    }
+
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Delete)).Succeeded)
+                    {
+                        <text> | </text>
+                        <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
+                    }
+
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Accept)).Succeeded)
+                    {
+                        <text> | </text>
+                        <a asp-action="Accept" asp-route-id="@item.CaseID">Klip sag</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
