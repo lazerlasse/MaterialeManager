@@ -29,7 +29,11 @@ namespace MaterialeManager
 				.Include(s => s.CaseState)
 				.Include(p => p.Photographer)
 				.Include(o => o.CaseOperator)
-				.AsNoTracking();
+				.Where(
+						c => c.CaseState.State == "Oprettet"
+						|| c.CaseState.State == "Klippes"
+						|| c.CaseState.State == "Fejlet")
+				.AsNoTracking().OrderBy(c => c.Created);
 
 			return View(await cases.ToListAsync());
 		}
@@ -141,8 +145,6 @@ namespace MaterialeManager
 				return RedirectToAction(nameof(Index));
 			}
 
-			ViewBag.CaseStates = await PopulateCaseStatesDropDownList();
-
 			return View(caseToUpdate);
 		}
 
@@ -178,25 +180,35 @@ namespace MaterialeManager
 			return RedirectToAction(nameof(Index));
 		}
 
-
+		// Get: Cases/Accept/5
 		[HttpGet]
 		public async Task<IActionResult> Accept(int? id)
 		{
+			// Check id not null..
 			if (id == null)
 			{
 				return NotFound();
 			}
 
+			// Get the case to accept from db and include related data.
 			var caseToAccept = await Context.Case
 				.Include(p => p.Photographer)
 				.Include(s => s.CaseState)
 				.FirstOrDefaultAsync(c => c.CaseID == id);
 
+			// Check if loaded case not null.
 			if (caseToAccept == null)
 			{
 				return NotFound();
 			}
 
+			// If case already accepted return view.
+			if (caseToAccept.CaseState.State == "Klippes")
+			{
+				return View(caseToAccept);
+			}
+
+			// Set case state to accepted and set operator name to current user.
 			caseToAccept.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Klippes");
 			caseToAccept.CaseOperatorID = UserManager.GetUserId(User);
 
@@ -212,6 +224,108 @@ namespace MaterialeManager
 
 
 			return View(caseToAccept);
+		}
+
+		// Get: Action Published on Accept Page.
+		public async Task<IActionResult> Published(int? id)
+		{
+			// Check id not null.
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			// Get case to publish.
+			var caseToPublish = await Context.Case
+				.Include(s => s.CaseState)
+				.FirstOrDefaultAsync(i => i.CaseID == id);
+
+			// Set case to published.
+			caseToPublish.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Udgivet");
+
+			try
+			{
+				Context.Case.Update(caseToPublish);
+				await Context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException ex)
+			{
+
+				throw ex;
+			}
+
+			// Return to index view of cases to handle.
+			return RedirectToAction(nameof(Index));
+		}
+
+		// Get: Cases/SetCaseError/5.
+		public async Task<IActionResult> SetCaseError(int? id)
+		{
+			// Check id not null.
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			// Get the case from db to update.
+			var caseToUpdate = await Context.Case
+				.Include(s => s.CaseState)
+				.Include(p => p.Photographer)
+				.Include(o => o.CaseOperator)
+				.FirstOrDefaultAsync(c => c.CaseID == id);
+
+			// Check Case not null.
+			if (caseToUpdate == null)
+			{
+				return NotFound();
+			}
+
+			return View(caseToUpdate);
+		}
+
+		// Post: Cases/SetCaseError/5
+		[HttpPost, ValidateAntiForgeryToken]
+		public async Task<IActionResult> SetCaseError(int id)
+		{
+			if (!ModelState.IsValid)
+			{
+				return NotFound();
+			}
+
+			var caseToSetErrorOn = await Context.Case
+				.Include(s => s.CaseState)
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.FirstOrDefaultAsync(c => c.CaseID == id);
+
+			caseToSetErrorOn.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Fejlet");
+			
+			if (await TryUpdateModelAsync(
+				caseToSetErrorOn,
+				"",
+				c => c.ErrorDescription))
+			{
+				try
+				{
+					Context.Case.Update(caseToSetErrorOn);
+					await Context.SaveChangesAsync();
+				}
+				catch (DbUpdateConcurrencyException ex)
+				{
+					if (!CaseExists(caseToSetErrorOn.CaseID))
+					{
+						return NotFound();
+					}
+					else
+					{
+						throw ex;
+					}
+				}
+
+				return RedirectToAction(nameof(Index));
+			}
+
+			return View(caseToSetErrorOn);
 		}
 
 		private bool CaseExists(int id)

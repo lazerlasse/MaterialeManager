@@ -26,10 +26,12 @@ namespace MaterialeManager.Models
 		[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:MM}", ApplyFormatInEditMode = true)]
 		public DateTime Created { get; set; }
 
+		[Display(Name = "Fejlmeddelelse")]
+		public string ErrorDescription { get; set; }
+
 
 		// Navigation Property for Case State.
-		[ForeignKey("CaseState")]
-		[Display(Name = "Status")]
+		[ForeignKey("CaseState"), Display(Name = "Status")]
 		public int CaseStateID { get; set; }			// FK for CaseState.
 		public CaseState CaseState { get; set; }		// Navigation Property for CaseState.
 

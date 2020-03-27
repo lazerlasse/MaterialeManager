@@ -1,0 +1,41 @@
+﻿@model MaterialeManager.Models.Case
+
+@{
+    ViewData["Title"] = "Fejlmeld sag";
+}
+
+<h1>Fejlmeld sag!</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SetCaseError">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="CaseID" />
+            <div class="form-group">
+                <label asp-for="Titel" class="control-label"></label>
+                <input asp-for="Titel" class="form-control" disabled/>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhotographerID" class="control-label"></label>
+                <input asp-for="Photographer.UserName" class="form-control" disabled/>
+            </div>
+            <div class="form-group">
+                <label asp-for="ErrorDescription" class="control-label"></label>
+                <input asp-for="ErrorDescription" class="form-control" />
+                <span asp-validation-for="ErrorDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Gem" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Accept">Fortryd</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
