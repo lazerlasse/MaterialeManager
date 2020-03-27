@@ -30,6 +30,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Cases" asp-action="Index">Sager til klip</a>
                             </li>
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.Accept)).Succeeded)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Cases" asp-action="RunningCases">Kørene sager</a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>

@@ -328,6 +328,20 @@ namespace MaterialeManager
 			return View(caseToSetErrorOn);
 		}
 
+		// Get: Cases/RunningCases
+		public async Task<IActionResult> RunningCases()
+		{
+			var runningCases = Context.Case
+				.Include(s => s.CaseState)
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.Where(c => c.CaseState.State == "Klippes")
+				.Where(c => c.CaseOperatorID == UserManager.GetUserId(User))
+				.OrderBy(c => c.Created).AsNoTracking();
+
+			return View(await runningCases.ToListAsync());
+		}
+
 		private bool CaseExists(int id)
 		{
 			return Context.Case.Any(e => e.CaseID == id);
