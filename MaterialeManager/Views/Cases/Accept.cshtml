@@ -1,0 +1,47 @@
+﻿@model MaterialeManager.Models.Case
+
+@{
+    ViewData["Title"] = "Sag Accepteret";
+}
+
+<h1>Sag til klip</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Titel)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Titel)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Comments)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Comments)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PhotographerID)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Photographer.UserName)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Published" asp-route-id="@Model.CaseID">Udgivet</a> |
+    <a asp-action="SetCaseError" asp-route-id="@Model.CaseID">Fejlmeld sag</a>
+</div>

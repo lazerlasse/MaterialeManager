@@ -52,6 +52,11 @@
                     @Html.DisplayFor(modelItem => item.Created)
                 </td>
                 <td>
+                    @if (item.CaseOperator == null)
+                    {
+                        <text>Afventer klipper</text>
+                    }
+
                     @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
                 </td>
                 <td>
