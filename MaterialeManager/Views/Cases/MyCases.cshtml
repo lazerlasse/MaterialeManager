@@ -1,0 +1,67 @@
+﻿@model IEnumerable<MaterialeManager.Models.Case>
+
+@{
+    ViewData["Title"] = "Mine sager";
+}
+
+<h1>Mine sager</h1>
+
+<p>
+    <a asp-action="Create">Opret sag til klip</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CaseState)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CaseOperatorID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhotographerID)
+            </th>
+            <th>
+                Handlinger
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr class="@item.CaseState.State">
+            <td>
+                @Html.DisplayFor(modelItem => item.CaseState.State)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Titel)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Photographer.UserName)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.CaseID">Detaljer</a> |
+                <a asp-action="Edit" asp-route-id="@item.CaseID">Rediger</a> |
+                <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

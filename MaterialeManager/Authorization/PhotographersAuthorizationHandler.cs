@@ -22,7 +22,8 @@ namespace MaterialeManager.Authorization
 
 			// If we're not asking for CRUD permission or approval/reject, return.
 			if (requirement.Name != Constants.CreateOperationName &&
-				requirement.Name != Constants.ReadOperationName)
+				requirement.Name != Constants.ReadOperationName &&
+				requirement.Name != Constants.IsPhotographerOperationName)
 			{
 				return Task.CompletedTask;
 			}

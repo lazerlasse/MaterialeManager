@@ -20,6 +20,10 @@ namespace MaterialeManager.Authorization
 		  new OperationAuthorizationRequirement { Name = Constants.AcceptOperationName };
 		public static OperationAuthorizationRequirement Reject =
 		  new OperationAuthorizationRequirement { Name = Constants.RejectOperationName };
+		public static OperationAuthorizationRequirement IsOperator =
+		  new OperationAuthorizationRequirement { Name = Constants.IsOperatorOperationName };
+		public static OperationAuthorizationRequirement IsPhotographer =
+		  new OperationAuthorizationRequirement { Name = Constants.IsPhotographerOperationName };
 	}
 
 	public class Constants
@@ -30,6 +34,8 @@ namespace MaterialeManager.Authorization
 		public static readonly string DeleteOperationName = "Delete";
 		public static readonly string AcceptOperationName = "Accept";
 		public static readonly string RejectOperationName = "Reject";
+		public static readonly string IsOperatorOperationName = "IsOperator";
+		public static readonly string IsPhotographerOperationName = "IsPhotographer";
 
 		public static readonly string CaseAdministratorsRole = "Administrator";
 		public static readonly string CaseOperatorsRole = "Klipper";

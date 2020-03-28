@@ -24,7 +24,8 @@ namespace MaterialeManager.Authorization
 			if (requirement.Name != Constants.ReadOperationName &&
 				requirement.Name != Constants.CreateOperationName &&
 				requirement.Name != Constants.AcceptOperationName &&
-				requirement.Name != Constants.RejectOperationName)
+				requirement.Name != Constants.RejectOperationName &&
+				requirement.Name != Constants.IsOperatorOperationName)
 			{
 				return Task.CompletedTask;
 			}

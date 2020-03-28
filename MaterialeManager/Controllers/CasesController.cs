@@ -25,6 +25,15 @@ namespace MaterialeManager
 		// GET: Cases
 		public async Task<IActionResult> Index()
 		{
+			var isAuthorized = User.IsInRole(Constants.CaseAdministratorsRole) ||
+				User.IsInRole(Constants.CaseOperatorsRole) ||
+				User.IsInRole(Constants.CasePhotographerRole);
+
+			if (!isAuthorized)
+			{
+				return Forbid();
+			}
+
 			var cases = Context.Case
 				.Include(s => s.CaseState)
 				.Include(p => p.Photographer)
@@ -340,6 +349,18 @@ namespace MaterialeManager
 				.OrderBy(c => c.Created).AsNoTracking();
 
 			return View(await runningCases.ToListAsync());
+		}
+
+		public async Task<IActionResult> MyCases()
+		{
+			var myCases = Context.Case
+				.Include(s => s.CaseState)
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.Where(c => c.PhotographerID == UserManager.GetUserId(User))
+				.AsNoTracking().OrderBy(c => c.Created);
+
+			return View(await myCases.ToListAsync());
 		}
 
 		private bool CaseExists(int id)
