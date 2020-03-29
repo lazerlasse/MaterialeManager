@@ -15,7 +15,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.CaseStateID)
+                @Html.DisplayNameFor(model => model.CaseState)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Titel)
@@ -38,9 +38,9 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr class="@item.CaseState.State">
+            <tr class="@item.CaseState">
                 <td>
-                    @Html.DisplayFor(modelItem => item.CaseState.State)
+                    @Html.DisplayFor(modelItem => item.CaseState)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Titel)
@@ -77,7 +77,7 @@
                         <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
                     }
 
-                    @if (item.CaseState.State == "Oprettet")
+                    @if (item.CaseState == Case.States.Oprettet)
                     {
                         @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Accept)).Succeeded)
                         {

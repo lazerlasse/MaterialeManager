@@ -9,7 +9,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-red border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Materiale Manager</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -20,26 +20,26 @@
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Hjem</a>
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Index">Hjem</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privatlivspolitik</a>
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Privacy">Privatlivspolitik</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Cases" asp-action="Index">Sager til klip</a>
+                                <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Cases" asp-action="Index">Sager til klip</a>
                             </li>
                             @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.IsOperator)).Succeeded)
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Cases" asp-action="RunningCases">Kørene sager</a>
+                                    <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Cases" asp-action="RunningCases">Kørene sager</a>
                                 </li>
                             }
                             @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.IsPhotographer)).Succeeded)
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Cases" asp-action="MyCases">Mine sager</a>
+                                    <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Cases" asp-action="MyCases">Mine sager</a>
                                 </li>
                             }
                         }

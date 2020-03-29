@@ -81,3 +81,9 @@ body {
 .Fejlet {
     background-color: red;
 }
+
+/* Layout Navbar costom options
+---------------------------------------------------- */
+.bg-red {
+    background-color: red;
+}

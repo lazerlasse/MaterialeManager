@@ -37,9 +37,9 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr class="@item.CaseState.State">
+        <tr class="@item.CaseState">
             <td>
-                @Html.DisplayFor(modelItem => item.CaseState.State)
+                @Html.DisplayFor(modelItem => item.CaseState)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Titel)

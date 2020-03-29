@@ -31,13 +31,12 @@ namespace MaterialeManager.Models
 
 
 		// Navigation Property for Case State.
-		[ForeignKey("CaseState"), Display(Name = "Status")]
-		public int CaseStateID { get; set; }			// FK for CaseState.
-		public CaseState CaseState { get; set; }		// Navigation Property for CaseState.
+		[Display(Name = "Status")]
+		public States CaseState { get; set; }		// Navigation Property for CaseState.
 
 
 		// Navigation Property for operator.
-		[Display(Name = "Sagsbehandler")]
+		[Display(Name = "Klipper")]
 		public string CaseOperatorID { get; set; }						// FK for CaseOperator IdentityUser.
 		public virtual IdentityUser CaseOperator { get; set; }			// Navigation property for IdentityUser.
 		
@@ -46,5 +45,13 @@ namespace MaterialeManager.Models
 		[Display(Name = "Fotograf")]
 		public string PhotographerID { get; set; }						// FK for CasePhotographer IdentityUser.
 		public virtual IdentityUser Photographer { get; set; }			// Navigation property for IdentityUser.
+
+		public enum States
+		{
+			Oprettet,
+			Klippes,
+			Fejlet,
+			Udgivet
+		}
 	}
 }

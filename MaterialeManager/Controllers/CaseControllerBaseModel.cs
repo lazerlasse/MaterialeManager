@@ -17,21 +17,14 @@ namespace MaterialeManager.Controllers
 		protected ApplicationDbContext Context { get; }
 		protected IAuthorizationService AuthorizationService { get; }
 		protected UserManager<IdentityUser> UserManager { get; }
-		
+
 
 		public CaseControllerBaseModel(ApplicationDbContext context, IAuthorizationService authorizationService, UserManager<IdentityUser> userManager)
-			:base()
+			: base()
 		{
 			Context = context;
 			AuthorizationService = authorizationService;
 			UserManager = userManager;
-		}
-
-		public async Task<SelectList> PopulateCaseStatesDropDownList(int? selectedStatus = null)
-		{
-			var itemsQuery = await Context.CaseStates.AsNoTracking().ToListAsync();
-
-			return new SelectList(itemsQuery, "CaseStateID", "State", selectedStatus);
 		}
 
 		public async Task<SelectList> PopulateOperatorsDropDownListAsync(string selectedOperator = null)

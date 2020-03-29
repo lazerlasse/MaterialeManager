@@ -34,7 +34,6 @@ namespace MaterialeManager
 				try
 				{
 					SeedUserAndRoles.SeedData(services, adminUserPWD).Wait();
-					SeedData.SeedDatabaseAsync(context).Wait();
 				}
 				catch (Exception ex)
 				{

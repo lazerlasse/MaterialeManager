@@ -29,9 +29,7 @@ namespace MaterialeManager.Authorization
 
 
 			// If we're not asking for CRUD permission, return.
-			if (requirement.Name != Constants.ReadOperationName &&
-				requirement.Name != Constants.CreateOperationName &&
-				requirement.Name != Constants.UpdateOperationName &&
+			if (requirement.Name != Constants.UpdateOperationName &&
 				requirement.Name != Constants.DeleteOperationName)
 			{
 				return Task.CompletedTask;

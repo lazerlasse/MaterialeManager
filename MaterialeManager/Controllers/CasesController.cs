@@ -35,14 +35,13 @@ namespace MaterialeManager
 			}
 
 			var cases = Context.Case
-				.Include(s => s.CaseState)
 				.Include(p => p.Photographer)
 				.Include(o => o.CaseOperator)
 				.Where(
-						c => c.CaseState.State == "Oprettet"
-						|| c.CaseState.State == "Klippes"
-						|| c.CaseState.State == "Fejlet")
-				.AsNoTracking().OrderBy(c => c.Created);
+						c => c.CaseState == Case.States.Oprettet
+						|| c.CaseState == Case.States.Klippes
+						|| c.CaseState == Case.States.Fejlet)
+				.AsNoTracking().OrderByDescending(c => c.Created);
 
 			return View(await cases.ToListAsync());
 		}
@@ -50,34 +49,59 @@ namespace MaterialeManager
 		// GET: Cases/Details/5
 		public async Task<IActionResult> Details(int? id)
 		{
+			// Check id not null.
 			if (id == null)
 			{
 				return NotFound();
 			}
 
+			// Load case from db and include related data.
 			var caseToView = await Context.Case
-				.Include(s => s.CaseState)
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.AsNoTracking()
 				.FirstOrDefaultAsync(c => c.CaseID == id);
 
+			// Check loaded case not null.
 			if (caseToView == null)
 			{
 				return NotFound();
 			}
 
+			// Validate current user have read rights.
+			var isAuthorized = await AuthorizationService.AuthorizeAsync(User, caseToView, CaseOperations.Read);
+
+			// If Authorization failed return forbid.
+			if (!isAuthorized.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Authorization succeded return view.
 			return View(caseToView);
 		}
 
+
+		// ---------------------   Create methods   ----------------------------- //
 		// GET: Cases/Create
-		public IActionResult Create()
+		public async Task<IActionResult> CreateAsync()
 		{
+			// Create new empty case and set datetime to now.
 			var newCase = new Case
 			{
 				Created = DateTime.Now
 			};
 
+			// Check if user can create.
+			var canCreate = await AuthorizationService.AuthorizeAsync(User, newCase, CaseOperations.Create);
+
+			// If authorization failed return forbid.
+			if (!canCreate.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Return view.
 			return View(newCase);
 		}
 
@@ -88,75 +112,133 @@ namespace MaterialeManager
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create([Bind("CaseID,Titel,Description,Comments,Created")] Case caseToCreate)
 		{
+			// Check model state is valid.
 			if (ModelState.IsValid)
 			{
+				// Set properties for new case to create.
 				caseToCreate.PhotographerID = UserManager.GetUserId(User);
-				caseToCreate.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Oprettet");
+				caseToCreate.CaseState = Case.States.Oprettet;
+
+				// Check user can create.
+				var canCreate = await AuthorizationService.AuthorizeAsync(User, caseToCreate, CaseOperations.Create);
+
+				// Check authorization succeded or return forbid.
+				if (!canCreate.Succeeded)
+				{
+					return Forbid();
+				}
+
+				// Save case to db.
 				Context.Add(caseToCreate);
 				await Context.SaveChangesAsync();
+
+				// Return to index.
 				return RedirectToAction(nameof(Index));
 			}
 
+			// Model state not valid so return view.
 			return View(caseToCreate);
 		}
 
+
+		// -------------------------------- Edit methods --------------------------------
 		// GET: Cases/Edit/5
 		public async Task<IActionResult> Edit(int? id)
 		{
+			// Check id not null.
 			if (id == null)
 			{
 				return NotFound();
 			}
 
-			var caseToEdit = await Context.Case.FirstOrDefaultAsync(i => i.CaseID == id);
+			// Load case and related data to edit...
+			var caseToEdit = await Context.Case
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.FirstOrDefaultAsync(i => i.CaseID == id);
 
+			// Check loaded case not null.
 			if (caseToEdit == null)
 			{
 				return NotFound();
 			}
 
-			ViewBag.CaseStates = await PopulateCaseStatesDropDownList();
+			// Check if user can edit.
+			var canEdit = await AuthorizationService.AuthorizeAsync(User, caseToEdit, CaseOperations.Update);
 
+			// Check authorization succeded or return forbid.
+			if (!canEdit.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Authorization succeded return view and case to edit.
 			return View(caseToEdit);
 		}
 
 		// POST: Cases/Edit/5
 		// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
 		// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-		[HttpPost]
+		[HttpPost, ActionName("Edit")]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("CaseID,Titel,Description,Comments,Created,CaseStateID")] Case caseToUpdate)
+		public async Task<IActionResult> EditCase(int? id)
 		{
-			if (id != caseToUpdate.CaseID)
+			// Check id not null.
+			if (id == null)
 			{
 				return NotFound();
 			}
 
-			if (ModelState.IsValid)
+			// Load case to edit.
+			var caseToEdit = await Context.Case
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.FirstOrDefaultAsync(c => c.CaseID == id);
+
+			// Check case is loaded.
+			if (caseToEdit == null)
 			{
+				return NotFound();
+			}
+
+			// Check user can edit.
+			var canEdit = await AuthorizationService.AuthorizeAsync(User, caseToEdit, CaseOperations.Update);
+
+			// Validate authorization.
+			if (canEdit.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Try update model async.
+			if (await TryUpdateModelAsync<Case>(
+				caseToEdit,
+				"",
+				c => c.Titel, c => c.Description, c => c.Comments))
+			{
+				// Try save changes to db.
 				try
 				{
-					Context.Update(caseToUpdate);
 					await Context.SaveChangesAsync();
 				}
 				catch (DbUpdateConcurrencyException)
 				{
-					if (!CaseExists(caseToUpdate.CaseID))
-					{
-						return NotFound();
-					}
-					else
-					{
-						throw;
-					}
+					//Log the error (uncomment ex variable name and write a log.)
+					ModelState.AddModelError("", "Unable to save changes. " +
+						"Try again, and if the problem persists, " +
+						"see your system administrator.");
 				}
 
+				// Succeded return to index.
 				return RedirectToAction(nameof(Index));
 			}
 
-			return View(caseToUpdate);
+			// Update failed return view.
+			return View(caseToEdit);
 		}
 
+
+		// ----------------------------- Delete methods  --------------------------------------
 		// GET: Cases/Delete/5
 		public async Task<IActionResult> Delete(int? id)
 		{
@@ -202,7 +284,6 @@ namespace MaterialeManager
 			// Get the case to accept from db and include related data.
 			var caseToAccept = await Context.Case
 				.Include(p => p.Photographer)
-				.Include(s => s.CaseState)
 				.FirstOrDefaultAsync(c => c.CaseID == id);
 
 			// Check if loaded case not null.
@@ -212,13 +293,13 @@ namespace MaterialeManager
 			}
 
 			// If case already accepted return view.
-			if (caseToAccept.CaseState.State == "Klippes")
+			if (caseToAccept.CaseState == Case.States.Klippes)
 			{
 				return View(caseToAccept);
 			}
 
 			// Set case state to accepted and set operator name to current user.
-			caseToAccept.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Klippes");
+			caseToAccept.CaseState = Case.States.Klippes;
 			caseToAccept.CaseOperatorID = UserManager.GetUserId(User);
 
 			try
@@ -246,11 +327,10 @@ namespace MaterialeManager
 
 			// Get case to publish.
 			var caseToPublish = await Context.Case
-				.Include(s => s.CaseState)
 				.FirstOrDefaultAsync(i => i.CaseID == id);
 
 			// Set case to published.
-			caseToPublish.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Udgivet");
+			caseToPublish.CaseState = Case.States.Udgivet;
 
 			try
 			{
@@ -278,7 +358,6 @@ namespace MaterialeManager
 
 			// Get the case from db to update.
 			var caseToUpdate = await Context.Case
-				.Include(s => s.CaseState)
 				.Include(p => p.Photographer)
 				.Include(o => o.CaseOperator)
 				.FirstOrDefaultAsync(c => c.CaseID == id);
@@ -302,13 +381,12 @@ namespace MaterialeManager
 			}
 
 			var caseToSetErrorOn = await Context.Case
-				.Include(s => s.CaseState)
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.FirstOrDefaultAsync(c => c.CaseID == id);
 
-			caseToSetErrorOn.CaseState = Context.CaseStates.FirstOrDefault(s => s.State == "Fejlet");
-			
+			caseToSetErrorOn.CaseState = Case.States.Fejlet;
+
 			if (await TryUpdateModelAsync(
 				caseToSetErrorOn,
 				"",
@@ -341,10 +419,9 @@ namespace MaterialeManager
 		public async Task<IActionResult> RunningCases()
 		{
 			var runningCases = Context.Case
-				.Include(s => s.CaseState)
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
-				.Where(c => c.CaseState.State == "Klippes")
+				.Where(c => c.CaseState == Case.States.Klippes)
 				.Where(c => c.CaseOperatorID == UserManager.GetUserId(User))
 				.OrderBy(c => c.Created).AsNoTracking();
 
@@ -354,7 +431,6 @@ namespace MaterialeManager
 		public async Task<IActionResult> MyCases()
 		{
 			var myCases = Context.Case
-				.Include(s => s.CaseState)
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.Where(c => c.PhotographerID == UserManager.GetUserId(User))

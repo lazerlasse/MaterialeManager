@@ -15,6 +15,5 @@ namespace MaterialeManager.Data
 		}
 
 		public DbSet<Case> Case { get; set; }
-		public DbSet<CaseState> CaseStates { get; set; }
 	}
 }

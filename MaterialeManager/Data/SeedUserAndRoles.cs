@@ -52,7 +52,7 @@ namespace MaterialeManager.Data
 			{
 				new IdentityUser
 				{
-					UserName = "brandmandlasse@gmail.com",
+					UserName = "Lasse",
 					Email = "brandmandlasse@gmail.com",
 					EmailConfirmed = true
 				},
@@ -81,13 +81,13 @@ namespace MaterialeManager.Data
 			{
 				new IdentityUser
 				{
-					UserName = "klipper@fixitmedia.dk",
+					UserName = "Klipper",
 					Email = "klipper@fixitmedia.dk",
 					EmailConfirmed = true
 				},
 				new IdentityUser
 				{
-					UserName = "KlipperFotograf@fixitmedia.dk",
+					UserName = "KlipperFotograf",
 					Email = "klipperfotograf@fixitmedia.dk",
 					EmailConfirmed = true
 				}
@@ -117,13 +117,13 @@ namespace MaterialeManager.Data
 			{
 				new IdentityUser
 				{
-					UserName = "fotograf@fixitmedia.dk",
+					UserName = "Fotograf",
 					Email = "fotograf@fixitmedia.dk",
 					EmailConfirmed = true,
 				},
 				new IdentityUser
 				{
-					UserName = "KlipperFotograf@fixitmedia.dk",
+					UserName = "KlipperFotograf",
 					Email = "klipperfotograf@fixitmedia.dk",
 					EmailConfirmed = true,
 				}
