@@ -36,7 +36,8 @@
                                     <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Cases" asp-action="RunningCases">Kørene sager</a>
                                 </li>
                             }
-                            @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.IsPhotographer)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.IsPhotographer)).Succeeded ||
+                                (await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.IsOperator)).Succeeded)
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Cases" asp-action="MyCases">Mine sager</a>

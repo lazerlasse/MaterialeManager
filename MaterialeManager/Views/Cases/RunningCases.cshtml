@@ -1,77 +1,72 @@
 ﻿@model IEnumerable<MaterialeManager.Models.Case>
 
 @{
-    ViewData["Title"] = "RunningCases";
+    ViewData["Title"] = "Kørene sager";
 }
 
-<h1>RunningCases</h1>
+<h1>Kørene sager</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Titel)
+                @Html.DisplayNameFor(model => model.CaseState)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.Titel)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Comments)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.ErrorDescription)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CaseState)
+                @Html.DisplayNameFor(model => model.Created)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CaseOperator)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Photographer)
+                @Html.DisplayNameFor(model => model.PhotographerID)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Titel)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Comments)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ErrorDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CaseState)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CaseOperator.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Photographer.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CaseID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CaseID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CaseID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CaseState)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Comments)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ErrorDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Photographer.UserName)
+                </td>
+                <td>
+                    <a asp-action="Accept" asp-route-id="@item.CaseID">Detaljer</a>
+
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Update)).Succeeded)
+                    {
+                        <br />
+                        <a asp-action="Edit" asp-route-id="@item.CaseID">Rediger</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Delete)).Succeeded)
+                    {
+                        <br />
+                        <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

@@ -8,7 +8,7 @@
 
 @if ((await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.Create)).Succeeded)
 {
-    <p><a asp-action="Create">Opret</a></p>
+    <p><a class="btn btn-primary" asp-action="Create">Opret ny sag</a></p>
 }
 
 <table class="table">

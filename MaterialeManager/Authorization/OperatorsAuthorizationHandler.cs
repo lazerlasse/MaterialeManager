@@ -22,8 +22,9 @@ namespace MaterialeManager.Authorization
 
 			// If we're not asking for following permission, return.
 			if (requirement.Name != Constants.ReadOperationName &&
+				requirement.Name != Constants.CreateOperationName &&
 				requirement.Name != Constants.AcceptOperationName &&
-				requirement.Name != Constants.RejectOperationName &&
+				requirement.Name != Constants.ErrorOperationName &&
 				requirement.Name != Constants.IsOperatorOperationName)
 			{
 				return Task.CompletedTask;

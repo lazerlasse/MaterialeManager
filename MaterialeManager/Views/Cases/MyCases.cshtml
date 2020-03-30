@@ -6,9 +6,6 @@
 
 <h1>Mine sager</h1>
 
-<p>
-    <a asp-action="Create">Opret sag til klip</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -20,6 +17,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ErrorDescription)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Created)
@@ -36,32 +36,45 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr class="@item.CaseState">
-            <td>
-                @Html.DisplayFor(modelItem => item.CaseState)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Titel)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Created)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Photographer.UserName)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.CaseID">Detaljer</a> |
-                <a asp-action="Edit" asp-route-id="@item.CaseID">Rediger</a> |
-                <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr class="@item.CaseState">
+                <td>
+                    @Html.DisplayFor(modelItem => item.CaseState)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ErrorDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Photographer.UserName)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.CaseID">Detaljer</a>
+
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Update)).Succeeded)
+                    {
+                        <text> | </text>
+                        <a asp-action="Edit" asp-route-id="@item.CaseID">Rediger</a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, item, CaseOperations.Delete)).Succeeded)
+                    {
+                        <text> | </text>
+                        <a asp-action="Delete" asp-route-id="@item.CaseID">Slet</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

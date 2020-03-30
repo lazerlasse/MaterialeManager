@@ -205,7 +205,7 @@ namespace MaterialeManager
 			var canEdit = await AuthorizationService.AuthorizeAsync(User, caseToEdit, CaseOperations.Update);
 
 			// Validate authorization.
-			if (canEdit.Succeeded)
+			if (!canEdit.Succeeded)
 			{
 				return Forbid();
 			}
@@ -242,19 +242,35 @@ namespace MaterialeManager
 		// GET: Cases/Delete/5
 		public async Task<IActionResult> Delete(int? id)
 		{
+			// Check id not null.
 			if (id == null)
 			{
 				return NotFound();
 			}
 
+			// Load case to delete from db and include related data.
 			var caseToDelete = await Context.Case
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.AsNoTracking()
 				.FirstOrDefaultAsync(m => m.CaseID == id);
 
+			// Check loaded case not null.
 			if (caseToDelete == null)
 			{
 				return NotFound();
 			}
 
+			// Check user can delete.
+			var canDelete = await AuthorizationService.AuthorizeAsync(User, caseToDelete, CaseOperations.Delete);
+
+			// Validate authorization succeded or return forbid.
+			if (!canDelete.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Authorization succeded return View.
 			return View(caseToDelete);
 		}
 
@@ -263,14 +279,37 @@ namespace MaterialeManager
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(int id)
 		{
+			// Load case to delete from db.
 			var caseToDelete = await Context.Case
+				.AsNoTracking()
 				.FirstOrDefaultAsync(i => i.CaseID == id);
 
+			// Check loaded case not null.
+			if (caseToDelete == null)
+			{
+				return NotFound();
+			}
+
+			// Check the user can delete.
+			var canDelete = await AuthorizationService.AuthorizeAsync(User, caseToDelete, CaseOperations.Delete);
+
+			// Check Authorization succeded or return forbid.
+			if (!canDelete.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Authorization succeded - remove case from db.
 			Context.Case.Remove(caseToDelete);
 			await Context.SaveChangesAsync();
+
+			// Return to index.
 			return RedirectToAction(nameof(Index));
 		}
 
+
+
+		// --------------------------------- Accept case section ---------------------------- //
 		// Get: Cases/Accept/5
 		[HttpGet]
 		public async Task<IActionResult> Accept(int? id)
@@ -292,16 +331,34 @@ namespace MaterialeManager
 				return NotFound();
 			}
 
-			// If case already accepted return view.
+			// Check user can accept.
+			var canAccept = await AuthorizationService.AuthorizeAsync(User, caseToAccept, CaseOperations.Accept);
+
+			// Validate authentication.
+			if (!canAccept.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// If case already accepted.
 			if (caseToAccept.CaseState == Case.States.Klippes)
 			{
-				return View(caseToAccept);
+				// Check current user is the operator of selected case.
+				if (caseToAccept.CaseOperatorID == UserManager.GetUserId(User))
+				{
+					return View(caseToAccept);
+				}
+				else
+				{
+					return Forbid();
+				}
 			}
 
 			// Set case state to accepted and set operator name to current user.
 			caseToAccept.CaseState = Case.States.Klippes;
 			caseToAccept.CaseOperatorID = UserManager.GetUserId(User);
 
+			// Try update case...
 			try
 			{
 				Context.Case.Update(caseToAccept);
@@ -312,7 +369,7 @@ namespace MaterialeManager
 				throw;
 			}
 
-
+			// Return view.
 			return View(caseToAccept);
 		}
 
@@ -329,9 +386,19 @@ namespace MaterialeManager
 			var caseToPublish = await Context.Case
 				.FirstOrDefaultAsync(i => i.CaseID == id);
 
+			// Check user have accept rights..
+			var canAccept = await AuthorizationService.AuthorizeAsync(User, caseToPublish, CaseOperations.Accept);
+
+			// Validate authentication.
+			if (!canAccept.Succeeded)
+			{
+				Forbid();
+			}
+
 			// Set case to published.
 			caseToPublish.CaseState = Case.States.Udgivet;
 
+			// Try update data.
 			try
 			{
 				Context.Case.Update(caseToPublish);
@@ -347,6 +414,9 @@ namespace MaterialeManager
 			return RedirectToAction(nameof(Index));
 		}
 
+
+
+		// --------------------------- Set case error section --------------------------------
 		// Get: Cases/SetCaseError/5.
 		public async Task<IActionResult> SetCaseError(int? id)
 		{
@@ -368,6 +438,16 @@ namespace MaterialeManager
 				return NotFound();
 			}
 
+			// Check user can error operate.
+			var canErrorOperate = await AuthorizationService.AuthorizeAsync(User, caseToUpdate, CaseOperations.Error);
+
+			// Validate authorization.
+			if (!canErrorOperate.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Succeded return view.
 			return View(caseToUpdate);
 		}
 
@@ -375,18 +455,37 @@ namespace MaterialeManager
 		[HttpPost, ValidateAntiForgeryToken]
 		public async Task<IActionResult> SetCaseError(int id)
 		{
+			// Check model state is valid.
 			if (!ModelState.IsValid)
 			{
 				return NotFound();
 			}
 
+			// Load case to update from db and include related data.
 			var caseToSetErrorOn = await Context.Case
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.FirstOrDefaultAsync(c => c.CaseID == id);
 
+			// Check loaded case not null.
+			if (caseToSetErrorOn == null)
+			{
+				return NotFound();
+			}
+
+			// Check user can set error.
+			var canSetError = await AuthorizationService.AuthorizeAsync(User, caseToSetErrorOn, CaseOperations.Error);
+
+			// Validate Authentication.
+			if (!canSetError.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Authentication succeded set new case state.
 			caseToSetErrorOn.CaseState = Case.States.Fejlet;
 
+			// Try update model async..
 			if (await TryUpdateModelAsync(
 				caseToSetErrorOn,
 				"",
@@ -409,33 +508,62 @@ namespace MaterialeManager
 					}
 				}
 
+				// Saving changes succeded return to index.
 				return RedirectToAction(nameof(Index));
 			}
 
+
+			// Operation failed return view.
 			return View(caseToSetErrorOn);
 		}
 
+
+
+		// ------------------------------- Running Cases section ------------------------//
 		// Get: Cases/RunningCases
 		public async Task<IActionResult> RunningCases()
 		{
+			// Check user have permissions to view.
+			var isAuthorized = User.IsInRole(Constants.CaseOperatorsRole);
+
+			// Validate Authentication.
+			if (!isAuthorized)
+			{
+				return Forbid();
+			}
+
+			// Load Cases to view.
 			var runningCases = Context.Case
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.Where(c => c.CaseState == Case.States.Klippes)
 				.Where(c => c.CaseOperatorID == UserManager.GetUserId(User))
-				.OrderBy(c => c.Created).AsNoTracking();
+				.OrderByDescending(c => c.Created).AsNoTracking();
 
+			// Return view and load cases async.
 			return View(await runningCases.ToListAsync());
 		}
 
 		public async Task<IActionResult> MyCases()
 		{
+			// Check user have permissions to view.
+			var isAuthorized = User.IsInRole(Constants.CasePhotographerRole) ||
+								User.IsInRole(Constants.CaseOperatorsRole);
+
+			// Validate authentication.
+			if (!isAuthorized)
+			{
+				return Forbid();
+			}
+
+			// Validation succeded load cases from db and include related data.
 			var myCases = Context.Case
 				.Include(o => o.CaseOperator)
 				.Include(p => p.Photographer)
 				.Where(c => c.PhotographerID == UserManager.GetUserId(User))
 				.AsNoTracking().OrderBy(c => c.Created);
 
+			// Succeded return view and load content async.
 			return View(await myCases.ToListAsync());
 		}
 

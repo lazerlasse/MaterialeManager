@@ -18,8 +18,8 @@ namespace MaterialeManager.Authorization
 		  new OperationAuthorizationRequirement { Name = Constants.DeleteOperationName };
 		public static OperationAuthorizationRequirement Accept =
 		  new OperationAuthorizationRequirement { Name = Constants.AcceptOperationName };
-		public static OperationAuthorizationRequirement Reject =
-		  new OperationAuthorizationRequirement { Name = Constants.RejectOperationName };
+		public static OperationAuthorizationRequirement Error =
+		  new OperationAuthorizationRequirement { Name = Constants.ErrorOperationName };
 		public static OperationAuthorizationRequirement IsOperator =
 		  new OperationAuthorizationRequirement { Name = Constants.IsOperatorOperationName };
 		public static OperationAuthorizationRequirement IsPhotographer =
@@ -33,7 +33,7 @@ namespace MaterialeManager.Authorization
 		public static readonly string UpdateOperationName = "Update";
 		public static readonly string DeleteOperationName = "Delete";
 		public static readonly string AcceptOperationName = "Accept";
-		public static readonly string RejectOperationName = "Reject";
+		public static readonly string ErrorOperationName = "Error";
 		public static readonly string IsOperatorOperationName = "IsOperator";
 		public static readonly string IsPhotographerOperationName = "IsPhotographer";
 
