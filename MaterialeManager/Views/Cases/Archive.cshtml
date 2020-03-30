@@ -1,0 +1,50 @@
+﻿@model IEnumerable<MaterialeManager.Models.Case>
+
+@{
+    ViewData["Title"] = "Arkiv: Udgivet sager";
+}
+
+<h1>Udgivet sager</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Titel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CaseOperatorID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhotographerID)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Titel)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CaseOperator.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Photographer.UserName)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

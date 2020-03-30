@@ -23,6 +23,15 @@
                 @Html.DisplayFor(model => model.Comments)
             </dd>
         }
+        @if (!string.IsNullOrEmpty(Model.ErrorDescription))
+        {
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.ErrorDescription)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.ErrorDescription)
+            </dd>
+        }
         <dt class="col-sm-3">
             @Html.DisplayNameFor(model => model.Created)
         </dt>
@@ -52,9 +61,9 @@
 <div>
     @if ((await AuthorizationService.AuthorizeAsync(User, Model, CaseOperations.Update)).Succeeded)
     {
-        <a asp-action="Edit" asp-route-id="@Model.CaseID">Rediger</a>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.CaseID">Rediger</a>
         <text> | </text>
     }
 
-    <a asp-action="Index">Tilbage til oversigten</a>
+    <a class="btn btn-primary" asp-action="Index">Tilbage til oversigten</a>
 </div>

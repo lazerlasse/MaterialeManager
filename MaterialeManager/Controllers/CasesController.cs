@@ -414,6 +414,56 @@ namespace MaterialeManager
 			return RedirectToAction(nameof(Index));
 		}
 
+		// Get: Reject accepted case.
+		public async Task<IActionResult> Reject(int? id)
+		{
+			// Check id not null.
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			// Load case to reject.
+			var caseToReject = await Context.Case
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.AsNoTracking().FirstOrDefaultAsync(c => c.CaseID == id);
+
+			// Check loaded case not null.
+			if (caseToReject == null)
+			{
+				return NotFound();
+			}
+
+			// Check user can reject.
+			var canReject = await AuthorizationService.AuthorizeAsync(User, caseToReject, CaseOperations.Accept);
+
+			// Validate Authorization.
+			if (!canReject.Succeeded || caseToReject.CaseOperatorID != UserManager.GetUserId(User))
+			{
+				return Forbid();
+			}
+
+			// Set new case state and remove current operator from case.
+			caseToReject.CaseOperatorID = null;
+			caseToReject.CaseOperator = null;
+			caseToReject.CaseState = Case.States.Oprettet;
+
+			// Try update case.
+			try
+			{
+				Context.Case.Update(caseToReject);
+				await Context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException ex)
+			{
+				throw ex;
+			}
+
+			// Return to index.
+			return RedirectToAction(nameof(Index));
+		}
+
 
 
 		// --------------------------- Set case error section --------------------------------
@@ -544,6 +594,10 @@ namespace MaterialeManager
 			return View(await runningCases.ToListAsync());
 		}
 
+
+
+		// ------------------------------ My cases section --------------------------------//
+		// Get: Cases/MyCases
 		public async Task<IActionResult> MyCases()
 		{
 			// Check user have permissions to view.
@@ -565,6 +619,32 @@ namespace MaterialeManager
 
 			// Succeded return view and load content async.
 			return View(await myCases.ToListAsync());
+		}
+
+
+
+		// ------------------------------------- Arcive cases section ----------------------//
+		// Get: Cases/Archive
+		public async Task<IActionResult> Archive()
+		{
+			// Check user have read access.
+			var isAuthorized = await AuthorizationService.AuthorizeAsync(User, new Case(), CaseOperations.Read);
+
+			// Validate Authorization.
+			if (!isAuthorized.Succeeded)
+			{
+				return Forbid();
+			}
+
+			// Load cases to view.
+			var archiveCases = Context.Case
+				.Include(o => o.CaseOperator)
+				.Include(p => p.Photographer)
+				.Where(c => c.CaseState == Case.States.Udgivet)
+				.AsNoTracking().OrderByDescending(c => c.Created);
+
+			// Return view and load content async.
+			return View(await archiveCases.ToListAsync());
 		}
 
 		private bool CaseExists(int id)

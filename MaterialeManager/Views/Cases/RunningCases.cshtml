@@ -33,7 +33,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
+            <tr class="@item.CaseState">
                 <td>
                     @Html.DisplayFor(modelItem => item.CaseState)
                 </td>

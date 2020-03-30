@@ -42,6 +42,11 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Published" asp-route-id="@Model.CaseID">Udgivet</a> |
-    <a asp-action="SetCaseError" asp-route-id="@Model.CaseID">Fejlmeld sag</a>
+    <a class="btn btn-primary" asp-action="Index" >Oversigten</a>
+    <text> | </text>
+    <a class="btn btn-primary" asp-action="Reject" asp-route-id="@Model.CaseID">Fortryd/Afvis</a>
+    <text> | </text>
+    <a class="btn btn-primary" asp-action="Published" asp-route-id="@Model.CaseID">Udgivet</a>
+    <text> | </text>
+    <a class="btn btn-primary" asp-action="SetCaseError" asp-route-id="@Model.CaseID">Fejlmeld</a>
 </div>
